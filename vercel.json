@@ -1,0 +1,13 @@
+{
+  "headers": [
+    {
+      "source": "/Bekhira_Gacem_Lamine_dev_portfolio.pdf",
+      "headers": [
+        { "key": "Content-Type", "value": "application/pdf" },
+        { "key": "Content-Disposition", "value": "inline; filename=\"Bekhira_Gacem_Lamine_dev_portfolio.pdf\"" },
+        { "key": "Cache-Control", "value": "no-store" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" }
+      ]
+    }
+  ]
+}
