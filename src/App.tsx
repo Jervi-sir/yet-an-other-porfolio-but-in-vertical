@@ -400,7 +400,7 @@ export default function App() {
   const [tab, setTab] = useState("about")
 
   const filtered = useMemo(() => {
-    setTab("projects");
+    if(query.length > 0) setTab("projects");
     return PROJECTS.filter((p) => {
       const matchesQuery = `${p.title} ${p.subtitle ?? ""} ${p.description}`
         .toLowerCase()
