@@ -199,7 +199,7 @@ function ProjectsTab({ filtered, PROJECTS }: { filtered: Project[]; PROJECTS: Pr
   const itemRefs = React.useRef<(HTMLDivElement | null)[]>([])
   itemRefs.current = Array(filtered.length).fill(null)
 
-  const { idx, onScroll } = useTopVisibleIndex(itemRefs, viewportRef)
+  const { idx, onScroll } = useTopVisibleIndex(itemRefs, viewportRef as any)
 
   // hovered vs stable
   const [hovered, setHovered] = React.useState<number | null>(null)
@@ -234,7 +234,7 @@ function ProjectsTab({ filtered, PROJECTS }: { filtered: Project[]; PROJECTS: Pr
 
       <ScrollArea
         className="h-[calc(100dvh-202px)] pr-4"
-        viewportRef={viewportRef}
+        viewportRef={viewportRef as any}
         onViewportScroll={handleScroll}
       >
         <ProjectsList
@@ -273,7 +273,7 @@ function ProjectsList({
       {projects.map((p, i) => (
         <motion.div
           key={p.id}
-          ref={(el) => (itemRefs.current[i] = el)}
+          ref={(el) => (itemRefs.current[i] = el) as any}
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: i * 0.03 }}
