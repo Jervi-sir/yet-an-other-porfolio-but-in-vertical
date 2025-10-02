@@ -108,15 +108,15 @@ function AboutCard() {
                       Open to freelance & collaborations
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <a href={`mailto:${ABOUT_ME.socials.email}`}>
-                      <Button className="rounded-xl h-9 cursor-pointer">
+                  <div className="flex items-center flex-col sm:flex-row gap-2">
+                    <a href={`mailto:${ABOUT_ME.socials.email}`} className="">
+                      <Button className="rounded-xl h-9 cursor-pointer w-full">
                         <Mail className="h-4 w-4 mr-1" /> Contact
                       </Button>
                     </a>
                     <Button
                       variant="outline"
-                      className="rounded-xl h-9 border-neutral-700 cursor-pointer"
+                      className="rounded-xl h-9 border-neutral-700 cursor-pointer  w-full sm:w-auto "
                       onClick={() => setPdfOpen(true)}
                     >
                       <Layers className="h-4 w-4 mr-1" /> CV
