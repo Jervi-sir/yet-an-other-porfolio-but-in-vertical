@@ -1,5 +1,4 @@
-// src/App.tsx
-import { useMemo, useState } from "react"
+import React, { useMemo, useState } from "react"
 import { motion } from "framer-motion"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -10,21 +9,18 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Github, Mail, Link as LinkIcon, MapPin, Briefcase, Layers, Phone, } from "lucide-react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, } from "@/components/ui/dialog"
-
-// keep your pathing for Badge like you wrote it:
 import { Badge } from "./components/ui/badge"
-
 import { ABOUT_ME, PROJECTS, skillColor } from "./db"
 import type { Project } from "./types";
 
-// --- Types ---
 
-// ===== Components =====
-export function PortfolioHeader() {
+// MARK: Components
+function PortfolioHeader() {
   return (
     <div className="flex items-center gap-3 py-3">
       <Avatar className="h-12 w-12">
         <AvatarFallback className="bg-neutral-800 text-neutral-200">B</AvatarFallback>
+        {/* <img src="./1.png" className="object-cover" /> */}
       </Avatar>
       <div className="flex-1">
         <h1 className="text-xl font-semibold leading-none text-neutral-100">Bekhira Gacem</h1>
@@ -48,7 +44,7 @@ export function PortfolioHeader() {
   )
 }
 
-export function SearchBar({
+function SearchBar({
   value,
   onChange,
 }: { value: string; onChange: (v: string) => void }) {
@@ -64,7 +60,9 @@ export function SearchBar({
   )
 }
 
-export function AboutCard() {
+
+// MARK: About Section
+function AboutCard() {
   const [pdfOpen, setPdfOpen] = useState(false);
 
   return (
@@ -130,6 +128,28 @@ export function AboutCard() {
           </div>
         </CardContent>
       </Card>
+      <Card className="my-4">
+        <CardContent>
+          <a href="https://jervi-writes.netlify.app" target="_blank">
+            <Button
+              variant="outline"
+              className="w-full cursor-pointer"
+            >
+              <span>Oh I write devs here too</span>
+            </Button>
+          </a>
+        </CardContent>
+      </Card>
+      <div className="flex flex-row justify-center mb-8">
+        <a
+          href="https://github.com/Jervi-sir/yet-an-other-porfolio-but-in-vertical"
+          target="_blank"
+          className="flex items-center gap-4"
+        >
+          <Github size={20} />
+          <span>site's repo</span>
+        </a>
+      </div>
       <Dialog open={pdfOpen} onOpenChange={setPdfOpen}>
         <DialogContent className="sm:max-w-[900px] border-neutral-800 bg-neutral-950 text-neutral-200">
           <DialogHeader>
@@ -172,7 +192,104 @@ export function AboutCard() {
   )
 }
 
-export function ProjectCard({ project }: { project: Project }) {
+
+// MARK: Project Section
+function ProjectsTab({ filtered, PROJECTS }: { filtered: Project[]; PROJECTS: Project[] }) {
+  const viewportRef = React.useRef<HTMLDivElement>(null)
+  const itemRefs = React.useRef<(HTMLDivElement | null)[]>([])
+  itemRefs.current = Array(filtered.length).fill(null)
+
+  const { idx, onScroll } = useTopVisibleIndex(itemRefs, viewportRef)
+
+  // hovered vs stable
+  const [hovered, setHovered] = React.useState<number | null>(null)
+  const [current, setCurrent] = React.useState(1)
+
+  // NEW: track what last changed the index
+  const lastInteractionRef = React.useRef<"scroll" | "hover" | null>(null)
+
+  // when hovering, show hovered; otherwise show stable current
+  const display = hovered ?? current
+
+  // Only sync `current` from `idx` if the last interaction was a scroll.
+  React.useEffect(() => {
+    if (hovered === null && lastInteractionRef.current === "scroll") {
+      setCurrent(idx)
+    }
+  }, [idx, hovered])
+
+  const handleScroll = React.useCallback(() => {
+    lastInteractionRef.current = "scroll"
+    onScroll()
+  }, [onScroll])
+
+  return (
+    <TabsContent value="projects" className="m-0 px-1">
+      <div className="flex items-center justify-between mb-2 px-1">
+        <div className="text-sm text-neutral-400 flex items-center gap-2">
+          <Briefcase className="h-4 w-4" />
+          {display} / {PROJECTS.length} projects
+        </div>
+      </div>
+
+      <ScrollArea
+        className="h-[calc(100dvh-202px)] pr-4"
+        viewportRef={viewportRef}
+        onViewportScroll={handleScroll}
+      >
+        <ProjectsList
+          projects={filtered}
+          itemRefs={itemRefs}
+          onHover={(i) => {
+            lastInteractionRef.current = "hover"
+            setHovered(i)
+          }}
+          onLeave={(i) => {
+            // lock in the last hovered item as the stable value
+            lastInteractionRef.current = "hover"
+            setCurrent(i)
+            setHovered(null)
+          }}
+        />
+      </ScrollArea>
+    </TabsContent>
+  )
+}
+
+
+function ProjectsList({
+  projects,
+  itemRefs,
+  onHover,
+  onLeave,
+}: {
+  projects: Project[]
+  itemRefs: React.MutableRefObject<(HTMLDivElement | null)[]>
+  onHover: (index1Based: number) => void
+  onLeave: (index1Based: number) => void
+}) {
+  return (
+    <div className="space-y-3">
+      {projects.map((p, i) => (
+        <motion.div
+          key={p.id}
+          ref={(el) => (itemRefs.current[i] = el)}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: i * 0.03 }}
+          onMouseEnter={() => onHover(i + 1)}
+          onMouseLeave={() => onLeave(i + 1)}
+          onFocus={() => onHover(i + 1)}
+          onBlur={() => onLeave(i + 1)}
+        >
+          <ProjectCard project={p} />
+        </motion.div>
+      ))}
+    </div>
+  )
+}
+
+function ProjectCard({ project }: { project: Project }) {
   return (
     <Card className="rounded-2xl hover:shadow-md transition border-neutral-800 bg-neutral-900/60 gap-2">
       <CardHeader className="pb-0">
@@ -240,30 +357,50 @@ export function ProjectCard({ project }: { project: Project }) {
   )
 }
 
-export function ProjectsList({ projects }: { projects: Project[] }) {
-  return (
-    <div className="space-y-3">
-      {projects.map((p, i) => (
-        <motion.div
-          key={p.id}
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: i * 0.03 }}
-        >
-          <ProjectCard project={p} />
-        </motion.div>
-      ))}
-    </div>
-  )
+
+export function useTopVisibleIndex(
+  itemRefs: React.MutableRefObject<(HTMLDivElement | null)[]>,
+  rootRef: React.RefObject<HTMLDivElement>,
+) {
+  const [idx, setIdx] = React.useState(1)
+
+  const recompute = React.useCallback(() => {
+    const root = rootRef.current
+    if (!root) return
+
+    const rootTop = root.getBoundingClientRect().top
+    const arr = itemRefs.current
+
+    // find first item whose bottom is below the viewport top (i.e., visible or just entering)
+    let i = 0
+    for (; i < arr.length; i++) {
+      const node = arr[i]
+      if (!node) continue
+      const rect = node.getBoundingClientRect()
+      if (rect.bottom > rootTop + 1) break
+    }
+    setIdx(Math.min(i + 1, arr.length || 1))
+  }, [rootRef, itemRefs])
+
+  // Recompute on resize too for safety
+  React.useEffect(() => {
+    recompute()
+    window.addEventListener("resize", recompute)
+    return () => window.removeEventListener("resize", recompute)
+  }, [recompute])
+
+  return { idx, onScroll: recompute }
 }
 
-// ===== Main Page =====
+
+// MARK: App()
 export default function App() {
   const [query, setQuery] = useState("")
   const [activeSkills] = useState<string[]>([]) // filters hidden in this version
-  const [tab, setTab] = useState("projects")
+  const [tab, setTab] = useState("about")
 
   const filtered = useMemo(() => {
+    setTab("projects");
     return PROJECTS.filter((p) => {
       const matchesQuery = `${p.title} ${p.subtitle ?? ""} ${p.description}`
         .toLowerCase()
@@ -275,13 +412,13 @@ export default function App() {
   }, [query, activeSkills])
 
   return (
-    <div className="h-[calc(100dvh)]  w-full bg-gradient-to-b from-neutral-950 to-black flex flex-col items-center text-neutral-200">
+    <div className="min-h-[calc(100dvh)]  w-full bg-gradient-to-b from-neutral-950 to-black flex flex-col items-center text-neutral-200">
       <div className="w-full max-w-[440px] md:max-w-[520px] lg:max-w-[560px] px-3 sm:px-4">
         <div className="sticky top-0 z-40 backdrop-blur bg-neutral-950/70 border-neutral-800">
           <PortfolioHeader />
           <SearchBar value={query} onChange={setQuery} />
           <Tabs value={tab} onValueChange={setTab} className="px-1">
-            <TabsList className="grid w-full grid-cols-2 rounded-2xl bg-neutral-900 border border-neutral-800">
+            <TabsList className="grid w-full grid-cols-2 rounded-xl bg-neutral-900 border border-neutral-800">
               <TabsTrigger value="about" className="data-[state=active]:bg-neutral-800">
                 About
               </TabsTrigger>
@@ -293,20 +430,14 @@ export default function App() {
         </div>
 
         <Tabs value={tab} onValueChange={setTab} className="mt-3">
-          <TabsContent value="about" className="m-0">
-            <AboutCard />
+          <TabsContent value="about" className="m-0 px-1">
+            <ScrollArea className="h-[calc(100dvh-175px)] pr-4">
+              <AboutCard />
+            </ScrollArea>
           </TabsContent>
 
-          <TabsContent value="projects" className="m-0">
-            <div className="flex items-center justify-between mb-2 px-1">
-              <div className="text-sm text-neutral-400 flex items-center gap-2">
-                <Briefcase className="h-4 w-4" />
-                {filtered.length} / {PROJECTS.length} projects
-              </div>
-            </div>
-            <ScrollArea className="h-[calc(100dvh-202px)] pr-3">
-              <ProjectsList projects={filtered} />
-            </ScrollArea>
+          <TabsContent value="projects" className="m-0 px-1">
+            <ProjectsTab filtered={filtered} PROJECTS={PROJECTS} />
           </TabsContent>
         </Tabs>
       </div>

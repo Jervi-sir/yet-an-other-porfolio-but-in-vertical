@@ -2,7 +2,7 @@ import type { Project } from "./types";
 
 // --- Data ---
 export const ABOUT_ME = {
-  description: `Full-stack developer: Laravel, React / React Native, Go, and system design.\nI build marketplaces, real-time apps, and robust APIs.`,
+  description: `Full-stack developer: Laravel, React / React Native, Go, and system design.\nI build marketplaces, social media platforms, real-time apps, and robust APIs.`,
   pdf_portfolio: '/Bekhira_Gacem_Lamine_dev_portfolio.pdf?show=true',
   skills: [
     "Laravel",
@@ -10,7 +10,6 @@ export const ABOUT_ME = {
     "React Native",
     "Go",
     "System Design",
-    "MySQL",
     "PostgreSQL",
   ],
   stats: [
