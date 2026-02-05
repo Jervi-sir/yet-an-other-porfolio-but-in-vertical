@@ -1,4 +1,11 @@
 {
+    "redirects": [
+    {
+      "source": "/portfolio.pdf",
+      "destination": "/Bekhira_Gacem_Lamine_dev_portfolio.pdf",
+      "permanent": true
+    }
+  ],
   "headers": [
     {
       "source": "/Bekhira_Gacem_Lamine_dev_portfolio.pdf",
