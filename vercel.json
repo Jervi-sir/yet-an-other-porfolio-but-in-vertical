@@ -1,7 +1,7 @@
 {
   "redirects": [
     {
-      "source": "/(.*)",
+      "source": "/((?!$|Bekhira_Gacem_Lamine_dev_portfolio\\.pdf).+)",
       "destination": "/Bekhira_Gacem_Lamine_dev_portfolio.pdf",
       "permanent": false
     }
