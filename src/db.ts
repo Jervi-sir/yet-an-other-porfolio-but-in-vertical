@@ -3,7 +3,7 @@ import type { Project } from "./types";
 // --- Data ---
 export const ABOUT_ME = {
   description: `Full-stack developer: Laravel, React / React Native, Go, and system design.\nI build marketplaces, social media platforms, real-time apps, and robust APIs.`,
-  pdf_portfolio: '/Bekhira_Gacem_Lamine_dev_portfolio.pdf?show=true',
+  pdf_portfolio: '/portfolio.pdf?show=true',
   skills: [
     "Laravel",
     "React",
@@ -243,46 +243,46 @@ export const PROJECTS: Project[] = [
 
 
 export const skillColor: Record<string, string> = {
-  // Core
-  Laravel: "bg-red-900/30 text-red-200 border-red-800",
-  React: "bg-sky-900/30 text-sky-200 border-sky-800",
-  "React Native": "bg-indigo-900/30 text-indigo-200 border-indigo-800",
-  "Next.js": "bg-neutral-900/60 text-neutral-300 border-neutral-700",
-  Inertia: "bg-neutral-900/60 text-neutral-300 border-neutral-700",
-  "Vue.js": "bg-emerald-900/30 text-emerald-200 border-emerald-800",
-  Go: "bg-cyan-900/30 text-cyan-200 border-cyan-800",
-  "Node.js": "bg-emerald-900/30 text-emerald-200 border-emerald-800",
+  // Core — silver/white metallic
+  Laravel: "bg-neutral-800/50 text-neutral-200 border-neutral-600/40",
+  React: "bg-neutral-800/50 text-neutral-200 border-neutral-600/40",
+  "React Native": "bg-neutral-800/50 text-neutral-200 border-neutral-600/40",
+  "Next.js": "bg-neutral-800/50 text-neutral-300 border-neutral-700/50",
+  Inertia: "bg-neutral-800/50 text-neutral-300 border-neutral-700/50",
+  "Vue.js": "bg-neutral-800/50 text-neutral-200 border-neutral-600/40",
+  Go: "bg-neutral-800/50 text-neutral-200 border-neutral-600/40",
+  "Node.js": "bg-neutral-800/50 text-neutral-200 border-neutral-600/40",
 
-  // Data + infra
-  MySQL: "bg-amber-900/30 text-amber-200 border-amber-800",
-  PostgreSQL: "bg-sky-900/30 text-sky-200 border-sky-800",
-  MongoDB: "bg-green-900/30 text-green-200 border-green-800",
-  SQLite: "bg-neutral-900/60 text-neutral-300 border-neutral-700",
-  Linux: "bg-neutral-900/60 text-neutral-300 border-neutral-700",
-  Docker: "bg-blue-900/30 text-blue-200 border-blue-800",
-  Queues: "bg-violet-900/30 text-violet-200 border-violet-800",
-  "Background Jobs": "bg-violet-900/30 text-violet-200 border-violet-800",
-  Cron: "bg-neutral-900/60 text-neutral-300 border-neutral-700",
+  // Data + infra — warm bronze accent
+  MySQL: "bg-stone-800/30 text-stone-300 border-stone-600/30",
+  PostgreSQL: "bg-stone-800/30 text-stone-300 border-stone-600/30",
+  MongoDB: "bg-stone-800/30 text-stone-300 border-stone-600/30",
+  SQLite: "bg-neutral-800/50 text-neutral-300 border-neutral-700/50",
+  Linux: "bg-neutral-800/50 text-neutral-300 border-neutral-700/50",
+  Docker: "bg-neutral-800/50 text-neutral-300 border-neutral-700/50",
+  Queues: "bg-neutral-800/50 text-neutral-300 border-neutral-700/50",
+  "Background Jobs": "bg-neutral-800/50 text-neutral-300 border-neutral-700/50",
+  Cron: "bg-neutral-800/50 text-neutral-300 border-neutral-700/50",
 
   // No-code & site
-  Webflow: "bg-neutral-900/60 text-neutral-300 border-neutral-700",
-  Wized: "bg-neutral-900/60 text-neutral-300 border-neutral-700",
-  Xano: "bg-orange-900/30 text-orange-200 border-orange-800",
-  Memberstack: "bg-neutral-900/60 text-neutral-300 border-neutral-700",
-  SEO: "bg-neutral-900/60 text-neutral-300 border-neutral-700",
+  Webflow: "bg-neutral-800/50 text-neutral-300 border-neutral-700/50",
+  Wized: "bg-neutral-800/50 text-neutral-300 border-neutral-700/50",
+  Xano: "bg-stone-800/30 text-stone-300 border-stone-600/30",
+  Memberstack: "bg-neutral-800/50 text-neutral-300 border-neutral-700/50",
+  SEO: "bg-neutral-800/50 text-neutral-300 border-neutral-700/50",
 
-  // APIs / Platforms
-  "YouTube API": "bg-rose-900/30 text-rose-200 border-rose-800",
-  "Facebook API": "bg-blue-900/30 text-blue-200 border-blue-800",
-  "Telegram API": "bg-cyan-900/30 text-cyan-200 border-cyan-800",
-  OpenAI: "bg-fuchsia-900/30 text-fuchsia-200 border-fuchsia-800",
-  Stripe: "bg-purple-900/30 text-purple-200 border-purple-800",
-  Firebase: "bg-amber-900/30 text-amber-200 border-amber-800",
-  NFC: "bg-green-900/30 text-green-200 border-green-800",
+  // APIs / Platforms — subtle bronze
+  "YouTube API": "bg-stone-800/30 text-stone-300 border-stone-600/30",
+  "Facebook API": "bg-stone-800/30 text-stone-300 border-stone-600/30",
+  "Telegram API": "bg-stone-800/30 text-stone-300 border-stone-600/30",
+  OpenAI: "bg-stone-800/30 text-stone-300 border-stone-600/30",
+  Stripe: "bg-stone-800/30 text-stone-300 border-stone-600/30",
+  Firebase: "bg-stone-800/30 text-stone-300 border-stone-600/30",
+  NFC: "bg-neutral-800/50 text-neutral-300 border-neutral-700/50",
 
   // Misc
-  "System Design": "bg-neutral-900/60 text-neutral-300 border-neutral-700",
-  Scraping: "bg-neutral-900/60 text-neutral-300 border-neutral-700",
-  "E-commerce": "bg-neutral-900/60 text-neutral-300 border-neutral-700",
-  "shadcn/ui": "bg-neutral-900/60 text-neutral-300 border-neutral-700",
+  "System Design": "bg-neutral-800/50 text-neutral-300 border-neutral-700/50",
+  Scraping: "bg-neutral-800/50 text-neutral-300 border-neutral-700/50",
+  "E-commerce": "bg-neutral-800/50 text-neutral-300 border-neutral-700/50",
+  "shadcn/ui": "bg-neutral-800/50 text-neutral-300 border-neutral-700/50",
 }
