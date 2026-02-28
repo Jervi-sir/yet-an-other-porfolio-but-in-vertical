@@ -27,7 +27,7 @@ export const ABOUT_ME = {
     }
   ],
   socials: {
-    email: 'gacembekhira.personal@gmail.com',
+    email: 'jervi@jervi.dev',
     phoneNumber: '+213558054300',
     github: 'https://github.com/Jervi-sir',
     linkedIn: 'https://www.linkedin.com/in/gacem-bekhira/',
