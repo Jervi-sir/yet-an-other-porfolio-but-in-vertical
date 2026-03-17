@@ -1,7 +1,7 @@
 // pdf-viewer.tsx (a small component you can reuse)
 import { useEffect, useState } from "react"
 import { Document, Page, pdfjs } from "react-pdf"
-// @ts-ignore
+// @ts-expect-error - worker URL import is provided by the bundler
 import workerSrc from "pdfjs-dist/build/pdf.worker.min.mjs?url"
 
 pdfjs.GlobalWorkerOptions.workerSrc = workerSrc

@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils"
 
 type ScrollAreaProps = React.ComponentProps<typeof ScrollAreaPrimitive.Root> & {
   /** Ref to the internal Viewport div so parents can listen/measure */
-  viewportRef?: React.RefObject<HTMLDivElement>
+  viewportRef?: React.RefObject<HTMLDivElement | null>
   /** Fires on every viewport scroll (passive) */
   onViewportScroll?: (e: Event) => void
 }

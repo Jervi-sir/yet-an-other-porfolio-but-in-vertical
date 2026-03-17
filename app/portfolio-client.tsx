@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useMemo, useState, useCallback, useRef } from "react"
+import React, { useEffect, useMemo, useState, useCallback, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -24,7 +24,7 @@ import {
   ArrowUpRight,
   PenTool,
 } from "lucide-react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import {
   Sheet,
   SheetClose,
@@ -37,6 +37,40 @@ import {
 } from "@/components/ui/sheet"
 import { Badge } from "@/components/ui/badge"
 import type { Project } from "@/src/types"
+
+type AboutStatItem = { value: string; label: string }
+
+type About = {
+  id?: string
+  name: string
+  role: string
+  description: string
+  email?: string | null
+  phone?: string | null
+  location?: string | null
+  pdf_portfolio?: string | null
+  skills?: unknown
+  stats?: unknown
+  socials?: unknown
+}
+
+const DEFAULT_ABOUT: About = {
+  name: "",
+  role: "",
+  description: "",
+  email: null,
+  phone: null,
+  location: null,
+  pdf_portfolio: null,
+  skills: [],
+  stats: [],
+  socials: {},
+}
+
+function asRecord(value: unknown): Record<string, unknown> | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null
+  return value as Record<string, unknown>
+}
 
 // Shared constant for now or move to shared lib
 export const skillColor: Record<string, string> = {
@@ -60,7 +94,10 @@ function Particles() {
   )
 }
 
-function PortfolioHeader({ about }: { about: any }) {
+function PortfolioHeader({ about }: { about: About }) {
+  const socials = asRecord(about.socials)
+  const github = typeof socials?.github === "string" ? socials.github : undefined
+
   return (
     <motion.div
       className="flex items-center gap-4 py-4"
@@ -93,7 +130,7 @@ function PortfolioHeader({ about }: { about: any }) {
         </div>
       </div>
       <div className="flex items-center gap-2">
-        <a href={about.socials?.github} target="_blank" rel="noreferrer">
+        <a href={github} target="_blank" rel="noreferrer">
           <div className="social-icon cursor-pointer">
             <Github className="h-4 w-4" />
           </div>
@@ -129,17 +166,22 @@ function SearchBar({ value, onChange }: { value: string; onChange: (v: string) =
   )
 }
 
-function AboutCard({ about }: { about: any }) {
+function AboutCard({ about }: { about: About }) {
   const [pdfOpen, setPdfOpen] = useState(false);
+
+  const socials = asRecord(about.socials)
+  const github = typeof socials?.github === "string" ? socials.github : undefined
+  const linkedIn = typeof socials?.linkedIn === "string" ? socials.linkedIn : undefined
+  const instagram = typeof socials?.instagram === "string" ? socials.instagram : undefined
   
   // Dynamic data from database with fallbacks
-  const stats = (Array.isArray(about.stats) && about.stats.length > 0) ? about.stats : [
+  const stats: AboutStatItem[] = (Array.isArray(about.stats) && about.stats.length > 0) ? (about.stats as AboutStatItem[]) : [
     { value: "0", label: "Projects" },
     { value: "0", label: "Experience" },
     { value: "0", label: "Frameworks" }
   ];
 
-  const skills = Array.isArray(about.skills) ? about.skills : [];
+  const skills = Array.isArray(about.skills) ? (about.skills as string[]) : [];
   const pdfUrl = about.pdf_portfolio || "/portfolio.pdf?show=true";
 
   return (
@@ -179,7 +221,7 @@ function AboutCard({ about }: { about: any }) {
             <Separator className="bg-neutral-800/60" />
 
             <div className="grid grid-cols-3 gap-3">
-              {stats.map((item: any, index: number) => (
+              {stats.map((item, index: number) => (
                 <motion.div
                   key={index}
                   className="stat-item text-center"
@@ -202,7 +244,7 @@ function AboutCard({ about }: { about: any }) {
                 <div>
                   <div className="text-sm font-medium text-neutral-100 flex items-center gap-1.5">
                     <Sparkles className="h-3.5 w-3.5 text-amber-600/60" />
-                    Let's build something great
+                    Let&apos;s build something great
                   </div>
                   <div className="text-[11px] text-neutral-500 mt-0.5">
                     Open to freelance & collaborations
@@ -248,9 +290,9 @@ function AboutCard({ about }: { about: any }) {
       </motion.div>
 
       <motion.div className="social-bar mb-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }}>
-        <a href={about.socials?.github} target="_blank" rel="noreferrer"><div className="social-icon cursor-pointer"><Github className="h-4 w-4" /></div></a>
-        <a href={about.socials?.linkedIn} target="_blank" rel="noreferrer"><div className="social-icon cursor-pointer"><Linkedin className="h-4 w-4" /></div></a>
-        <a href={about.socials?.instagram} target="_blank" rel="noreferrer"><div className="social-icon cursor-pointer"><Instagram className="h-4 w-4" /></div></a>
+        <a href={github} target="_blank" rel="noreferrer"><div className="social-icon cursor-pointer"><Github className="h-4 w-4" /></div></a>
+        <a href={linkedIn} target="_blank" rel="noreferrer"><div className="social-icon cursor-pointer"><Linkedin className="h-4 w-4" /></div></a>
+        <a href={instagram} target="_blank" rel="noreferrer"><div className="social-icon cursor-pointer"><Instagram className="h-4 w-4" /></div></a>
         <a href={`mailto:${about.email}`}><div className="social-icon cursor-pointer"><Mail className="h-4 w-4" /></div></a>
       </motion.div>
 
@@ -269,7 +311,7 @@ function AboutCard({ about }: { about: any }) {
             </div>
           </div>
           <DialogFooter className="flex items-center justify-between gap-2">
-            <div className="text-[11px] text-neutral-500">Tip: If the PDF doesn't render, click "Open in new tab".</div>
+            <div className="text-[11px] text-neutral-500">Tip: If the PDF doesn&apos;t render, click &quot;Open in new tab&quot;.</div>
             <div className="flex gap-2">
               <a href={pdfUrl} target="_blank" rel="noreferrer"><Button variant="outline" className="rounded-xl border-neutral-700">Open in new tab</Button></a>
               <a href={pdfUrl} download><Button className="rounded-xl cta-button text-white">Download</Button></a>
@@ -284,9 +326,12 @@ function AboutCard({ about }: { about: any }) {
 function ProjectsTab({ filtered, PROJECTS }: { filtered: Project[]; PROJECTS: Project[] }) {
   const viewportRef = useRef<HTMLDivElement>(null)
   const itemRefs = useRef<(HTMLDivElement | null)[]>([])
-  itemRefs.current = Array(filtered.length).fill(null)
 
-  const { idx, onScroll } = useTopVisibleIndex(itemRefs, viewportRef as any)
+  useEffect(() => {
+    itemRefs.current = Array(filtered.length).fill(null)
+  }, [filtered.length])
+
+  const { onScroll } = useTopVisibleIndex(itemRefs, viewportRef)
 
   const [hovered, setHovered] = useState<number | null>(null)
   const [current, setCurrent] = useState(1)
@@ -294,16 +339,11 @@ function ProjectsTab({ filtered, PROJECTS }: { filtered: Project[]; PROJECTS: Pr
 
   const display = hovered ?? current
 
-  React.useEffect(() => {
-    if (hovered === null && lastInteractionRef.current === "scroll") {
-      setCurrent(idx)
-    }
-  }, [idx, hovered])
-
   const handleScroll = useCallback(() => {
     lastInteractionRef.current = "scroll"
-    onScroll()
-  }, [onScroll])
+    const nextIdx = onScroll() ?? 1
+    if (hovered === null) setCurrent(nextIdx)
+  }, [onScroll, hovered])
 
   return (
     <TabsContent value="projects" className="m-0 px-1">
@@ -313,19 +353,40 @@ function ProjectsTab({ filtered, PROJECTS }: { filtered: Project[]; PROJECTS: Pr
           <span><span className="text-neutral-300 font-medium">{display}</span><span className="text-neutral-600"> / </span><span>{PROJECTS.length} projects</span></span>
         </div>
       </motion.div>
-      <ScrollArea className="h-[calc(100dvh-210px)] pr-4" viewportRef={viewportRef as any} onViewportScroll={handleScroll}>
+      <ScrollArea className="h-[calc(100dvh-210px)] pr-4" viewportRef={viewportRef} onViewportScroll={handleScroll}>
         <ProjectsList projects={filtered} itemRefs={itemRefs} onHover={(i: number) => { lastInteractionRef.current = "hover"; setHovered(i); }} onLeave={(i: number) => { lastInteractionRef.current = "hover"; setCurrent(i); setHovered(null); }} />
       </ScrollArea>
     </TabsContent>
   )
 }
 
-function ProjectsList({ projects, itemRefs, onHover, onLeave }: any) {
+function ProjectsList({
+  projects,
+  itemRefs,
+  onHover,
+  onLeave,
+}: {
+  projects: Project[]
+  itemRefs: React.MutableRefObject<(HTMLDivElement | null)[]>
+  onHover: (i: number) => void
+  onLeave: (i: number) => void
+}) {
   return (
     <div className="space-y-3">
       <AnimatePresence mode="popLayout">
         {projects.map((p: Project, i: number) => (
-          <motion.div key={p.id} ref={(el) => (itemRefs.current[i] = el) as any} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ delay: i * 0.04, duration: 0.4 }} onMouseEnter={() => onHover(i + 1)} onMouseLeave={() => onLeave(i + 1)}>
+          <motion.div
+            key={p.id}
+            ref={(el) => {
+              itemRefs.current[i] = el
+            }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ delay: i * 0.04, duration: 0.4 }}
+            onMouseEnter={() => onHover(i + 1)}
+            onMouseLeave={() => onLeave(i + 1)}
+          >
             <ProjectCard project={p} />
           </motion.div>
         ))}
@@ -394,12 +455,14 @@ function ProjectCard({ project }: { project: Project }) {
   )
 }
 
-function useTopVisibleIndex(itemRefs: any, rootRef: any) {
-  const [idx, setIdx] = React.useState(1)
+type DomRef<T> = { current: T | null }
+
+function useTopVisibleIndex(itemRefs: DomRef<(HTMLElement | null)[]>, rootRef: DomRef<HTMLElement>) {
+  const [idx, setIdx] = useState(1)
   const recompute = useCallback(() => {
     const root = rootRef.current; if (!root) return
     const rootTop = root.getBoundingClientRect().top
-    const arr = itemRefs.current
+    const arr = itemRefs.current ?? []
     let i = 0
     for (; i < arr.length; i++) {
       const node = arr[i]
@@ -407,34 +470,79 @@ function useTopVisibleIndex(itemRefs: any, rootRef: any) {
       const rect = node.getBoundingClientRect()
       if (rect.bottom > rootTop + 1) break
     }
-    setIdx(Math.min(i + 1, arr.length || 1))
+    const nextIdx = Math.min(i + 1, arr.length || 1)
+    setIdx(nextIdx)
+    return nextIdx
   }, [rootRef, itemRefs])
-  React.useEffect(() => { recompute(); window.addEventListener("resize", recompute); return () => window.removeEventListener("resize", recompute) }, [recompute])
+  useEffect(() => {
+    recompute()
+    window.addEventListener("resize", recompute)
+    return () => window.removeEventListener("resize", recompute)
+  }, [recompute])
   return { idx, onScroll: recompute }
 }
 
-export default function PortfolioClient({ initialProjects, about }: { initialProjects: Project[], about: any }) {
+export default function PortfolioClient({ initialProjects, about }: { initialProjects: Project[]; about: About }) {
   const [query, setQuery] = useState("")
-  const [activeSkills] = useState<string[]>([])
+  const [activeSkills] = useState<Project["skills"]>([])
   const [tab, setTab] = useState("about")
 
+  // Client hydration fallback: if server didn't provide data, fetch from API.
+  const [projects, setProjects] = useState<Project[]>(Array.isArray(initialProjects) ? initialProjects : [])
+  const [aboutState, setAboutState] = useState<About>(about ?? DEFAULT_ABOUT)
+
+  useEffect(() => {
+    let cancelled = false
+
+    const needsProjects = !Array.isArray(initialProjects) || initialProjects.length === 0
+    const needsAbout = !about || !about.description
+
+    if (!needsProjects && !needsAbout) return
+
+    ;(async () => {
+      try {
+        const [projectsRes, aboutRes] = await Promise.all([
+          needsProjects ? fetch("/api/projects") : Promise.resolve(null),
+          needsAbout ? fetch("/api/about") : Promise.resolve(null),
+        ])
+
+        if (cancelled) return
+
+        if (projectsRes) {
+          const data = (await projectsRes.json()) as unknown
+          if (Array.isArray(data)) setProjects(data as Project[])
+        }
+
+        if (aboutRes) {
+          const data = (await aboutRes.json()) as unknown
+          if (data && typeof data === "object") setAboutState(data as About)
+        }
+      } catch (e) {
+        console.error("Failed to hydrate portfolio data:", e)
+      }
+    })()
+
+    return () => {
+      cancelled = true
+    }
+  }, [initialProjects, about])
+
   const filtered = useMemo(() => {
-    if (query.length > 0) setTab("projects");
-    return initialProjects.filter((p) => {
+    return projects.filter((p) => {
       const skillsJoin = Array.isArray(p.skills) ? p.skills.join(" ") : ""
       const matchesQuery = `${p.title} ${p.subtitle ?? ""} ${p.description} ${skillsJoin}`.toLowerCase().includes(query.toLowerCase())
-      const matchesSkills = activeSkills.length === 0 || activeSkills.every((s) => Array.isArray(p.skills) && p.skills.includes(s as any))
+      const matchesSkills = activeSkills.length === 0 || activeSkills.every((s) => Array.isArray(p.skills) && p.skills.includes(s))
       return matchesQuery && matchesSkills
     })
-  }, [query, activeSkills, initialProjects])
+  }, [query, activeSkills, projects])
 
   return (
     <div className="min-h-[100dvh] w-full bg-neutral-950 flex flex-col items-center text-neutral-200 relative overflow-hidden">
       <Particles />
       <div className="w-full max-w-[460px] md:max-w-[520px] lg:max-w-[560px] px-3 sm:px-4 relative z-10">
         <div className="sticky top-0 z-40 glass-header rounded-b-2xl px-1">
-          <PortfolioHeader about={about} />
-          <SearchBar value={query} onChange={setQuery} />
+           <PortfolioHeader about={aboutState} />
+           <SearchBar value={query} onChange={(v) => { setQuery(v); if (v.length > 0) setTab("projects") }} />
           <Tabs value={tab} onValueChange={setTab} className="px-1 pb-3">
             <TabsList className="grid w-full grid-cols-2 rounded-xl bg-neutral-900/80 border border-neutral-800/50 h-10">
               <TabsTrigger value="about" className="data-[state=active]:bg-neutral-800/60 data-[state=active]:text-neutral-200 rounded-lg transition-all text-neutral-500 text-sm italic font-bold uppercase tracking-tighter">About</TabsTrigger>
@@ -444,10 +552,10 @@ export default function PortfolioClient({ initialProjects, about }: { initialPro
         </div>
         <Tabs value={tab} onValueChange={setTab} className="mt-3">
           <TabsContent value="about" className="m-0 px-1">
-            <ScrollArea className="h-[calc(100dvh-195px)] pr-4"><AboutCard about={about} /></ScrollArea>
+            <ScrollArea className="h-[calc(100dvh-195px)] pr-4"><AboutCard about={aboutState} /></ScrollArea>
           </TabsContent>
           <TabsContent value="projects" className="m-0 px-1">
-            <ProjectsTab filtered={filtered} PROJECTS={initialProjects} />
+            <ProjectsTab filtered={filtered} PROJECTS={projects} />
           </TabsContent>
         </Tabs>
       </div>
