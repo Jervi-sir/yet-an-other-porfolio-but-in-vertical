@@ -18,15 +18,13 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const data = await request.json();
-    console.log('Received POST data:', JSON.stringify(data, null, 2).slice(0, 500));
-    
+
     if (Array.isArray(data)) {
-      console.log(`Processing bulk sync for ${data.length} projects`);
       await db.transaction(async (tx) => {
         for (let index = 0; index < data.length; index++) {
           const p = data[index];
           const { id, createdAt, updatedAt, ...rest } = p;
-          
+
           const values = {
             id: id || `p-${Date.now()}-${index}`,
             title: rest.title || "Untitled",
@@ -63,7 +61,6 @@ export async function POST(request: Request) {
         }
       });
     } else {
-      console.log('Processing individual upsert');
       const { id, createdAt, updatedAt, ...rest } = data;
       const values = {
         id: id || `p-${Date.now()}`,
@@ -76,6 +73,7 @@ export async function POST(request: Request) {
         details: rest.details || null,
         keyPoints: rest.keyPoints || [],
         skills: rest.skills || [],
+        orderIndex: rest.orderIndex !== undefined ? rest.orderIndex : 0,
         updatedAt: new Date(),
       };
       await db.insert(projectTable)
@@ -103,5 +101,24 @@ export async function POST(request: Request) {
     console.error('Save error details:', error);
     const message = error instanceof Error ? error.stack || error.message : 'Failed to save projects';
     return NextResponse.json({ error: message }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+
+    if (!id) {
+      return NextResponse.json({ error: 'Missing project ID' }, { status: 400 });
+    }
+
+    const { eq } = await import('drizzle-orm');
+    await db.delete(projectTable).where(eq(projectTable.id, id));
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Delete project error:', error);
+    return NextResponse.json({ error: 'Failed to delete project' }, { status: 500 });
   }
 }

@@ -11,6 +11,8 @@ import type { Project } from "@/src/types";
 export function ProjectList() {
   const storeProjects = useAdminStore((s) => s.projects);
   const saveProjects = useAdminStore((s) => s.saveProjects);
+  const reorderProject = useAdminStore((s) => s.reorderProject);
+  const deleteProject = useAdminStore((s) => s.deleteProject);
   const saving = useAdminStore((s) => s.saving);
   const router = useRouter();
 
@@ -27,9 +29,9 @@ export function ProjectList() {
     setItems(storeProjects);
   }, [storeProjects]);
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm('Are you sure you want to delete this project?')) {
-      saveProjects(storeProjects.filter((p) => p.id !== id));
+      await deleteProject(id);
     }
   };
 
@@ -67,60 +69,24 @@ export function ProjectList() {
       return;
     }
 
+    // Optimistically update UI
     const currentItems = [...items];
     const draggedIndex = currentItems.findIndex(item => item.id === draggingId);
-    if (draggedIndex === -1) {
-      handleDragEnd();
-      return;
+    if (draggedIndex !== -1) {
+      const [draggedItem] = currentItems.splice(draggedIndex, 1);
+      const targetIndex = currentItems.findIndex(item => item.id === dropTargetId);
+      if (targetIndex !== -1) {
+        const insertIndex = dropPosition === 'after' ? targetIndex + 1 : targetIndex;
+        currentItems.splice(insertIndex, 0, draggedItem);
+        setItems(currentItems);
+      }
     }
 
-    // Remove dragged item from its current position
-    const [draggedItem] = currentItems.splice(draggedIndex, 1);
-    
-    // Find the new index of the drop target
-    const targetIndex = currentItems.findIndex(item => item.id === dropTargetId);
-    if (targetIndex === -1) {
-      handleDragEnd();
-      return;
-    }
-
-    const insertIndex = dropPosition === 'after' ? targetIndex + 1 : targetIndex;
-    
-    // Get neighbors to calculate new orderIndex
-    const prevItem = currentItems[insertIndex - 1];
-    const nextItem = currentItems[insertIndex];
-
-    let newOrderIndex: number;
-
-    const GAP = 10;
-    if (!prevItem && nextItem) {
-      // Moved to top
-      newOrderIndex = (nextItem.orderIndex ?? 0) - GAP;
-    } else if (prevItem && !nextItem) {
-      // Moved to bottom
-      newOrderIndex = (prevItem.orderIndex ?? 0) + GAP;
-    } else if (prevItem && nextItem) {
-      // Moved between two items
-      newOrderIndex = ((prevItem.orderIndex ?? 0) + (nextItem.orderIndex ?? 0)) / 2;
-    } else {
-      // Fallback
-      newOrderIndex = GAP;
-    }
-
-    const updatedItem = { ...draggedItem, orderIndex: newOrderIndex };
-    currentItems.splice(insertIndex, 0, updatedItem);
-
-    // Update local state immediately for smooth UI
-    setItems(currentItems);
-    
-    // Perform partial save to API (only the moved item)
     try {
-      await saveProjects([updatedItem]);
-      // After saving one item, we should probably refresh the store's full list to be sure
-      // but keep our local order for now.
+      await reorderProject(draggingId, dropTargetId, dropPosition);
     } catch (error) {
-      console.error("Failed to save new order:", error);
-      setItems(items); // Revert on failure
+      console.error("Failed to reorder:", error);
+      setItems(storeProjects); // Revert on failure
     }
 
     handleDragEnd();

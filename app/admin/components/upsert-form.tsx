@@ -191,8 +191,8 @@ export function ProjectUpsertForm({ id }: { id?: string }) {
     if (projects.some((p) => p.id === formData.id)) {
       projectToSave = formData as Project;
     } else {
-      const maxOrder = projects.reduce((max, p) => Math.max(max, p.orderIndex || 0), 0);
-      projectToSave = { ...formData, orderIndex: maxOrder + 10 } as Project;
+      const minOrder = projects.reduce((min, p) => Math.min(min, p.orderIndex || 0), 0);
+      projectToSave = { ...formData, orderIndex: minOrder - 10 } as Project;
     }
     
     saveProjects([projectToSave]).then(() => {
