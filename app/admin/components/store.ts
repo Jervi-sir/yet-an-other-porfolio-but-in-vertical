@@ -34,7 +34,21 @@ export const useAdminStore = create<AdminState>((set) => ({
         body: JSON.stringify(newProjects),
       });
       if (!res.ok) throw new Error('Failed to save');
-      set({ projects: newProjects });
+      
+      // Update local store by merging the saved projects
+      set((state) => {
+        const merged = [...state.projects];
+        newProjects.forEach(np => {
+          const idx = merged.findIndex(p => p.id === np.id);
+          if (idx !== -1) merged[idx] = np;
+          else merged.push(np);
+        });
+        // Important: Re-sort the merged list by orderIndex to keep UI consistent
+        return { 
+          projects: merged.sort((a, b) => (a.orderIndex || 0) - (b.orderIndex || 0)),
+          saving: false 
+        };
+      });
     } catch (err) {
       alert('Error saving projects');
       console.error(err);

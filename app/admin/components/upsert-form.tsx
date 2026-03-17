@@ -187,13 +187,15 @@ export function ProjectUpsertForm({ id }: { id?: string }) {
 
   const handleSaveForm = () => {
     if (!formData.title || !formData.id) return alert('Title is required');
-    let updated: Project[];
+    let projectToSave: Project;
     if (projects.some((p) => p.id === formData.id)) {
-      updated = projects.map((p) => (p.id === formData.id ? (formData as Project) : p));
+      projectToSave = formData as Project;
     } else {
-      updated = [formData as Project, ...projects];
+      const maxOrder = projects.reduce((max, p) => Math.max(max, p.orderIndex || 0), 0);
+      projectToSave = { ...formData, orderIndex: maxOrder + 10 } as Project;
     }
-    saveProjects(updated).then(() => {
+    
+    saveProjects([projectToSave]).then(() => {
       router.push('/admin');
     });
   };

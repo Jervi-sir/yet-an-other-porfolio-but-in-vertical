@@ -29,5 +29,5 @@ export type Project = {
   details?: string
   keyPoints?: string[]
   skills: Skill[]
-  order?: number
+  orderIndex?: number
 }

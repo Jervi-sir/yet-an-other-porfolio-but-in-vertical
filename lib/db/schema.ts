@@ -1,4 +1,4 @@
-import { pgTable, text, integer, timestamp, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, integer, timestamp, jsonb, doublePrecision } from "drizzle-orm/pg-core";
 
 export const project = pgTable("Project", {
   id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
@@ -11,7 +11,7 @@ export const project = pgTable("Project", {
   details: text("details"),
   keyPoints: text("keyPoints").array().notNull().default([]),
   skills: text("skills").array().notNull().default([]),
-  order: integer("order").notNull().default(0),
+  orderIndex: doublePrecision("order_index").notNull().default(0),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });

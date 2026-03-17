@@ -59,7 +59,7 @@ export function ProjectList() {
     setDropPosition(null);
   };
 
-  const handleDrop = (e: React.DragEvent) => {
+  const handleDrop = async (e: React.DragEvent) => {
     e.preventDefault();
 
     if (draggingId === null || dropTargetId === null || dropPosition === null || draggingId === dropTargetId) {
@@ -69,31 +69,66 @@ export function ProjectList() {
 
     const currentItems = [...items];
     const draggedIndex = currentItems.findIndex(item => item.id === draggingId);
-    const targetIndex = currentItems.findIndex(item => item.id === dropTargetId);
-
-    if (draggedIndex === -1 || targetIndex === -1) {
+    if (draggedIndex === -1) {
       handleDragEnd();
       return;
     }
 
+    // Remove dragged item from its current position
     const [draggedItem] = currentItems.splice(draggedIndex, 1);
     
-    const newTargetIndex = currentItems.findIndex(item => item.id === dropTargetId);
-    
-    const insertIndex = dropPosition === 'after' ? newTargetIndex + 1 : newTargetIndex;
-    currentItems.splice(insertIndex, 0, draggedItem);
+    // Find the new index of the drop target
+    const targetIndex = currentItems.findIndex(item => item.id === dropTargetId);
+    if (targetIndex === -1) {
+      handleDragEnd();
+      return;
+    }
 
+    const insertIndex = dropPosition === 'after' ? targetIndex + 1 : targetIndex;
+    
+    // Get neighbors to calculate new orderIndex
+    const prevItem = currentItems[insertIndex - 1];
+    const nextItem = currentItems[insertIndex];
+
+    let newOrderIndex: number;
+
+    const GAP = 10;
+    if (!prevItem && nextItem) {
+      // Moved to top
+      newOrderIndex = (nextItem.orderIndex ?? 0) - GAP;
+    } else if (prevItem && !nextItem) {
+      // Moved to bottom
+      newOrderIndex = (prevItem.orderIndex ?? 0) + GAP;
+    } else if (prevItem && nextItem) {
+      // Moved between two items
+      newOrderIndex = ((prevItem.orderIndex ?? 0) + (nextItem.orderIndex ?? 0)) / 2;
+    } else {
+      // Fallback
+      newOrderIndex = GAP;
+    }
+
+    const updatedItem = { ...draggedItem, orderIndex: newOrderIndex };
+    currentItems.splice(insertIndex, 0, updatedItem);
+
+    // Update local state immediately for smooth UI
     setItems(currentItems);
-    setHasChanged(true);
+    
+    // Perform partial save to API (only the moved item)
+    try {
+      await saveProjects([updatedItem]);
+      // After saving one item, we should probably refresh the store's full list to be sure
+      // but keep our local order for now.
+    } catch (error) {
+      console.error("Failed to save new order:", error);
+      setItems(items); // Revert on failure
+    }
+
     handleDragEnd();
   };
 
   const handleSaveOrder = async () => {
-    const updatedProjects = items.map((item, index) => ({
-      ...item,
-      order: index
-    }));
-    await saveProjects(updatedProjects);
+    // This button is now redundant if we auto-save, but keeping it as a full sync option if needed
+    // or we can remove it. Let's make it do nothing or remove the button.
     setHasChanged(false);
   };
 
@@ -105,17 +140,6 @@ export function ProjectList() {
           {saving && <Loader2 className="h-4 w-4 animate-spin text-amber-500 ml-2" />}
         </h2>
         <div className="flex items-center gap-2">
-          {hasChanged && (
-            <Button 
-              size="sm" 
-              variant="outline" 
-              onClick={handleSaveOrder} 
-              disabled={saving}
-              className="border-amber-600/50 text-amber-500 hover:bg-amber-950/20 rounded-lg cursor-pointer"
-            >
-              <Save className="h-4 w-4 mr-1" /> {saving ? 'Saving...' : 'Save Order'}
-            </Button>
-          )}
           <Button asChild size="sm" className="bg-amber-600 hover:bg-amber-700 text-white rounded-lg cursor-pointer disabled:opacity-50" disabled={saving}>
             <Link href="/admin/new">
               <Plus className="h-4 w-4 mr-1" /> Add Project

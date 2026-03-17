@@ -31,7 +31,7 @@ export default async function Home() {
     };
 
   const rawProjects = await db.query.project.findMany({
-    orderBy: [asc(projectTable.order)],
+    orderBy: [asc(projectTable.orderIndex)],
   });
 
   const projects: Project[] = rawProjects.map((p) => ({
@@ -45,7 +45,7 @@ export default async function Home() {
     details: p.details || undefined,
     keyPoints: p.keyPoints,
     skills: (p.skills ?? []) as Project["skills"],
-    order: p.order,
+    orderIndex: p.orderIndex,
   }));
 
   return <PortfolioClient initialProjects={projects} about={about} />;

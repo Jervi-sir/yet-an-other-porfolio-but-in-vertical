@@ -1,0 +1,1 @@
+ALTER TABLE "Project" RENAME COLUMN "order" TO "order_index";

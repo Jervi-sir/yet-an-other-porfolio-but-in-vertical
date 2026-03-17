@@ -6,7 +6,7 @@ import { asc } from 'drizzle-orm';
 export async function GET() {
   try {
     const projects = await db.query.project.findMany({
-      orderBy: [asc(projectTable.order)]
+      orderBy: [asc(projectTable.orderIndex)]
     });
     return NextResponse.json(projects);
   } catch (error) {
@@ -18,19 +18,27 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const data = await request.json();
+    console.log('Received POST data:', JSON.stringify(data, null, 2).slice(0, 500));
     
-    // In the current admin logic, it sends the WHOLE array of projects to sync.
     if (Array.isArray(data)) {
-      // Bulk sync logic
+      console.log(`Processing bulk sync for ${data.length} projects`);
       await db.transaction(async (tx) => {
         for (let index = 0; index < data.length; index++) {
           const p = data[index];
-          const { id, ...rest } = p;
+          const { id, createdAt, updatedAt, ...rest } = p;
+          
           const values = {
-            id: id || `new-${crypto.randomUUID()}`,
-            ...rest,
-            year: rest.year.toString(),
-            order: rest.order !== undefined ? rest.order : index,
+            id: id || `p-${Date.now()}-${index}`,
+            title: rest.title || "Untitled",
+            subtitle: rest.subtitle || null,
+            description: rest.description || "",
+            year: (rest.year ?? "").toString() || "—",
+            link: rest.link || null,
+            repo: rest.repo || null,
+            details: rest.details || null,
+            keyPoints: rest.keyPoints || [],
+            skills: rest.skills || [],
+            orderIndex: (rest.orderIndex !== undefined && rest.orderIndex !== null) ? rest.orderIndex : (index + 1) * 10,
             updatedAt: new Date(),
           };
 
@@ -38,31 +46,62 @@ export async function POST(request: Request) {
             .values(values)
             .onConflictDoUpdate({
               target: projectTable.id,
-              set: values
+              set: {
+                title: values.title,
+                subtitle: values.subtitle,
+                description: values.description,
+                year: values.year,
+                link: values.link,
+                repo: values.repo,
+                details: values.details,
+                keyPoints: values.keyPoints,
+                skills: values.skills,
+                orderIndex: values.orderIndex,
+                updatedAt: values.updatedAt,
+              }
             });
         }
       });
     } else {
-      // Individual upsert
-      const { id, ...rest } = data;
+      console.log('Processing individual upsert');
+      const { id, createdAt, updatedAt, ...rest } = data;
       const values = {
-        id: id || `new-${crypto.randomUUID()}`,
-        ...rest,
-        year: rest.year.toString() || "—",
+        id: id || `p-${Date.now()}`,
+        title: rest.title || "Untitled",
+        subtitle: rest.subtitle || null,
+        description: rest.description || "",
+        year: (rest.year ?? "").toString() || "—",
+        link: rest.link || null,
+        repo: rest.repo || null,
+        details: rest.details || null,
+        keyPoints: rest.keyPoints || [],
+        skills: rest.skills || [],
         updatedAt: new Date(),
       };
       await db.insert(projectTable)
         .values(values)
         .onConflictDoUpdate({
           target: projectTable.id,
-          set: values
+          set: {
+            title: values.title,
+            subtitle: values.subtitle,
+            description: values.description,
+            year: values.year,
+            link: values.link,
+            repo: values.repo,
+            details: values.details,
+            keyPoints: values.keyPoints,
+            skills: values.skills,
+            orderIndex: rest.orderIndex !== undefined ? rest.orderIndex : undefined,
+            updatedAt: values.updatedAt,
+          }
         });
     }
 
     return NextResponse.json({ success: true });
   } catch (error: unknown) {
-    console.error('Save error:', error);
-    const message = error instanceof Error ? error.message : 'Failed to save projects';
+    console.error('Save error details:', error);
+    const message = error instanceof Error ? error.stack || error.message : 'Failed to save projects';
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
