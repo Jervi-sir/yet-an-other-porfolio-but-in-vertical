@@ -113,21 +113,20 @@ function PortfolioHeader({ about }: { about: About }) {
       </div>
       <div className="flex-1">
         <h1 className="text-xl font-bold leading-none gradient-text">{about.name}</h1>
-        <div className="flex items-center gap-2 mt-1.5">
+        <div className="flex flex-col items-start gap-1 mt-1.5">
           <div className="flex items-center gap-1.5 text-xs text-neutral-400">
             <MapPin className="h-3 w-3" />
             <span>{about.location || 'Algeria'}</span>
           </div>
-          <span className="text-neutral-700">·</span>
           <div className="flex items-center gap-1.5 text-xs text-neutral-400">
             <Sparkles className="h-3 w-3 text-amber-600/70" />
             <span>{about.role}</span>
           </div>
         </div>
-        <div className="flex items-center gap-1.5 mt-1">
+        {/* <div className="flex items-center gap-1.5 mt-1">
           <div className="status-dot" />
           <span className="text-[10px] text-neutral-400">Available for work</span>
-        </div>
+        </div> */}
       </div>
       <div className="flex items-center gap-2">
         <a href={github} target="_blank" rel="noreferrer">
@@ -148,7 +147,7 @@ function PortfolioHeader({ about }: { about: About }) {
 function SearchBar({ value, onChange }: { value: string; onChange: (v: string) => void }) {
   return (
     <motion.div
-      className="px-1 pb-3"
+      className="pb-3"
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.1 }}
@@ -173,7 +172,7 @@ function AboutCard({ about }: { about: About }) {
   const github = typeof socials?.github === "string" ? socials.github : undefined
   const linkedIn = typeof socials?.linkedIn === "string" ? socials.linkedIn : undefined
   const instagram = typeof socials?.instagram === "string" ? socials.instagram : undefined
-  
+
   // Dynamic data from database with fallbacks
   const stats: AboutStatItem[] = (Array.isArray(about.stats) && about.stats.length > 0) ? (about.stats as AboutStatItem[]) : [
     { value: "0", label: "Projects" },
@@ -289,7 +288,7 @@ function AboutCard({ about }: { about: About }) {
         </a>
       </motion.div>
 
-      <motion.div className="social-bar mb-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }}>
+      <motion.div className="social-bar mb-6 pb-10" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }}>
         <a href={github} target="_blank" rel="noreferrer"><div className="social-icon cursor-pointer"><Github className="h-4 w-4" /></div></a>
         <a href={linkedIn} target="_blank" rel="noreferrer"><div className="social-icon cursor-pointer"><Linkedin className="h-4 w-4" /></div></a>
         <a href={instagram} target="_blank" rel="noreferrer"><div className="social-icon cursor-pointer"><Instagram className="h-4 w-4" /></div></a>
@@ -372,7 +371,7 @@ function ProjectsList({
   onLeave: (i: number) => void
 }) {
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 pb-10">
       <AnimatePresence mode="popLayout">
         {projects.map((p: Project, i: number) => (
           <motion.div
@@ -390,6 +389,7 @@ function ProjectsList({
             <ProjectCard project={p} />
           </motion.div>
         ))}
+        <div style={{ height: 100 }}></div>
       </AnimatePresence>
     </div>
   )
@@ -499,28 +499,28 @@ export default function PortfolioClient({ initialProjects, about }: { initialPro
 
     if (!needsProjects && !needsAbout) return
 
-    ;(async () => {
-      try {
-        const [projectsRes, aboutRes] = await Promise.all([
-          needsProjects ? fetch("/api/projects") : Promise.resolve(null),
-          needsAbout ? fetch("/api/about") : Promise.resolve(null),
-        ])
+      ; (async () => {
+        try {
+          const [projectsRes, aboutRes] = await Promise.all([
+            needsProjects ? fetch("/api/projects") : Promise.resolve(null),
+            needsAbout ? fetch("/api/about") : Promise.resolve(null),
+          ])
 
-        if (cancelled) return
+          if (cancelled) return
 
-        if (projectsRes) {
-          const data = (await projectsRes.json()) as unknown
-          if (Array.isArray(data)) setProjects(data as Project[])
+          if (projectsRes) {
+            const data = (await projectsRes.json()) as unknown
+            if (Array.isArray(data)) setProjects(data as Project[])
+          }
+
+          if (aboutRes) {
+            const data = (await aboutRes.json()) as unknown
+            if (data && typeof data === "object") setAboutState(data as About)
+          }
+        } catch (e) {
+          console.error("Failed to hydrate portfolio data:", e)
         }
-
-        if (aboutRes) {
-          const data = (await aboutRes.json()) as unknown
-          if (data && typeof data === "object") setAboutState(data as About)
-        }
-      } catch (e) {
-        console.error("Failed to hydrate portfolio data:", e)
-      }
-    })()
+      })()
 
     return () => {
       cancelled = true
@@ -537,13 +537,13 @@ export default function PortfolioClient({ initialProjects, about }: { initialPro
   }, [query, activeSkills, projects])
 
   return (
-    <div className="min-h-[100dvh] w-full bg-neutral-950 flex flex-col items-center text-neutral-200 relative overflow-hidden">
+    <div className="h-[100dvh] w-full bg-neutral-950 flex flex-col items-center text-neutral-200 relative overflow-hidden">
       <Particles />
-      <div className="w-full max-w-[460px] md:max-w-[520px] lg:max-w-[560px] px-3 sm:px-4 relative z-10">
+      <div className="w-full max-w-[460px] md:max-w-[520px] lg:max-w-[560px] px-3 sm:px-3 relative z-10 h-full flex flex-col">
         <div className="sticky top-0 z-40 glass-header rounded-b-2xl px-1">
-           <PortfolioHeader about={aboutState} />
-           <SearchBar value={query} onChange={(v) => { setQuery(v); if (v.length > 0) setTab("projects") }} />
-          <Tabs value={tab} onValueChange={setTab} className="px-1 pb-3">
+          <PortfolioHeader about={aboutState} />
+          <SearchBar value={query} onChange={(v) => { setQuery(v); if (v.length > 0) setTab("projects") }} />
+          <Tabs value={tab} onValueChange={setTab} className="pb-3">
             <TabsList className="grid w-full grid-cols-2 rounded-xl bg-neutral-900/80 border border-neutral-800/50 h-10">
               <TabsTrigger value="about" className="data-[state=active]:bg-neutral-800/60 data-[state=active]:text-neutral-200 rounded-lg transition-all text-neutral-500 text-sm italic font-bold uppercase tracking-tighter">About</TabsTrigger>
               <TabsTrigger value="projects" className="data-[state=active]:bg-neutral-800/60 data-[state=active]:text-neutral-200 rounded-lg transition-all text-neutral-500 text-sm italic font-bold uppercase tracking-tighter">Projects</TabsTrigger>
@@ -552,7 +552,10 @@ export default function PortfolioClient({ initialProjects, about }: { initialPro
         </div>
         <Tabs value={tab} onValueChange={setTab} className="mt-3">
           <TabsContent value="about" className="m-0 px-1">
-            <ScrollArea className="h-[calc(100dvh-195px)] pr-4"><AboutCard about={aboutState} /></ScrollArea>
+            <ScrollArea className="h-[calc(100dvh-195px)] pr-4">
+              <AboutCard about={aboutState} />
+              <div style={{ height: 20 }}></div>
+            </ScrollArea>
           </TabsContent>
           <TabsContent value="projects" className="m-0 px-1">
             <ProjectsTab filtered={filtered} PROJECTS={projects} />
