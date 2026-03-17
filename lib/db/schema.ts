@@ -30,3 +30,11 @@ export const about = pgTable("About", {
   socials: jsonb("socials"),
   updatedAt: timestamp("updatedAt").defaultNow().notNull(),
 });
+
+export const visitors = pgTable("Visitors", {
+  id: text("id").primaryKey().$defaultFn(() => crypto.randomUUID()),
+  ip: text("ip").notNull(),
+  userAgent: text("user_agent"),
+  path: text("path"),
+  visitedAt: timestamp("visited_at").defaultNow().notNull(),
+});

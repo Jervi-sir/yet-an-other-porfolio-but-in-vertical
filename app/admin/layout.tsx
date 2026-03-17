@@ -25,6 +25,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               Admin Panel
             </h1>
           </Link>
+          <nav className="flex items-center gap-2 ml-4">
+            <Button variant="ghost" size="sm" asChild className="text-neutral-400 hover:text-neutral-100">
+              <Link href="/admin">Projects</Link>
+            </Button>
+            <Button variant="ghost" size="sm" asChild className="text-neutral-400 hover:text-neutral-100">
+              <Link href="/admin/visitors">Visitors</Link>
+            </Button>
+          </nav>
         </div>
         <div className="flex items-center gap-4">
           <span className="text-xs text-neutral-500 hidden sm:flex items-center gap-2">

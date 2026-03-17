@@ -3,10 +3,12 @@ import { project as projectTable, about as aboutTable } from "@/lib/db/schema";
 import { asc, eq } from "drizzle-orm";
 import PortfolioClient from "./portfolio-client";
 import type { Project } from "@/src/types";
+import { trackVisitor } from "@/lib/visitors";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
+  await trackVisitor();
   const about =
     (await db.query.about.findFirst({
       where: eq(aboutTable.id, "about-me"),

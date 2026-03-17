@@ -15,6 +15,13 @@
       "when": 1773746643696,
       "tag": "0001_plain_peter_parker",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1773750845741,
+      "tag": "0002_gifted_susan_delgado",
+      "breakpoints": true
     }
   ]
 }
