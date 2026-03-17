@@ -14,7 +14,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }, [fetchProjects]);
 
   return (
-    <div className="min-h-[100dvh] bg-neutral-950 flex flex-col text-neutral-200 relative w-full">
+    <div className="min-h-screen bg-neutral-950 flex flex-col text-neutral-200 relative w-full">
       <header className="h-16 border-b border-neutral-800/80 flex items-center px-4 md:px-8 justify-between bg-neutral-950/60 backdrop-blur-xl sticky top-0 z-50">
         <div className="flex items-center gap-4">
           <Link href="/admin">
@@ -47,7 +47,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </Button>
         </div>
       </header>
-      <main className="flex-1 px-4 md:px-8 py-8 w-full max-w-7xl mx-auto overflow-y-auto">
+      <main className="flex-1 px-4 md:px-8 py-8 w-full max-w-7xl mx-auto">
         {children}
       </main>
     </div>

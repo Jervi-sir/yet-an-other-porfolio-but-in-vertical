@@ -19,7 +19,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark h-full">
       <body
-        className={`${inter.className} antialiased selection:bg-amber-500/30 h-full overflow-hidden`}
+        className={`${inter.className} antialiased selection:bg-amber-500/30 h-full`}
       >
         {children}
       </body>
